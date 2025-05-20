@@ -106,12 +106,23 @@
             method: 'POST',
             body: formData
         })
-            .then(res => res.text())
-            .then(data => {
-                document.getElementById('message').innerHTML = data;
-                if (!editId) this.reset(); // sadece yeni eklemede formu temizle
-            });
-    });
+             .then(res => res.text())
+        .then(data => {
+        const messageDiv = document.getElementById('message');
+
+    if (!editId) {
+        messageDiv.innerHTML = "✅ Event created successfully. Redirecting to homepage...";
+        messageDiv.style.display = "block";
+
+        setTimeout(() => {
+            window.location.href = "index.html";
+        }, 1500); // 1.5 saniye sonra yönlendirme
+    } else {
+        messageDiv.innerHTML = data;
+        this.reset();
+    }
+});
+});
 </script>
 
 
