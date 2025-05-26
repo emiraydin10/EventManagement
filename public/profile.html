@@ -24,69 +24,78 @@
        
         <form id="uploadForm" enctype="multipart/form-data">
             <input type="file" name="profileImage" accept="image/*" required>
-            <button type="submit" class="logout-btn">Upload Photo</button>
+            <button type="submit" class="logout-btn" type="submit">Upload Photo</button>
         </form>
-        <button class="logout-btn" onclick="logout()">Logout</button>
+
+        <button class="logout-btn" id="logoutBtn">Logout</button>
         
         <img id="previewImage" src="#" alt="Preview" style="display:none; margin-top:1rem; max-width:150px; border-radius:50%;">
-
     </div>
     
 </div>
 
 <script>
-    fetch('../../backend/profile.php')
+document.addEventListener("DOMContentLoaded", function () {
+    // Kullanıcı profilini getir
+    fetch('/backend/profile.php')
         .then(res => res.json())
         .then(data => {
-            if (data) {
+            if (data && data.username) {
                 document.getElementById('profileDetails').innerHTML = `
-            <p><strong>Name:</strong> ${data.username}</p>
-            <p><strong>Email:</strong> ${data.email}</p>
-          `;
-          document.getElementById('userNameSpan').textContent = data.username;
+                    <p><strong>Name:</strong> ${data.username}</p>
+                    <p><strong>Email:</strong> ${data.email}</p>
+                `;
+                document.getElementById('userNameSpan').textContent = data.username;
             } else {
                 window.location.href = 'login.html';
             }
+        })
+        .catch(err => {
+            console.error("Profil verisi alınamadı:", err);
+            window.location.href = 'login.html';
         });
 
-    function logout() {
-        fetch('../../backend/logout.php')
+    // Fotoğraf yükleme
+    document.getElementById("uploadForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        fetch("/backend/upload_profile.php", {
+            method: "POST",
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log(data);
+
+            if (data.status === "success") {
+                const img = document.getElementById("previewImage");
+                img.src = data.imageUrl;
+                img.style.display = "block";
+            } else {
+                alert(data.message || "Upload failed.");
+            }
+        })
+        .catch(error => {
+            console.error("Error during upload:", error);
+            alert("Bir hata oluştu.");
+        });
+    });
+
+    // Logout işlemi
+    document.getElementById("logoutBtn").addEventListener("click", function () {
+        fetch('/backend/logout.php')
             .then(() => {
                 window.location.href = 'login.html';
             });
-    }
-    document.getElementById("uploadForm").addEventListener("submit", function(e) {
-    e.preventDefault();
-
-    const formData = new FormData(this);
-
-    fetch("../../../backend/uploads/upload_profile.php", {
-        method: "POST",
-        body: formData
-    })
-    .then(res => res.json()) // ✅ JSON olarak işle
-    .then(data => {
-        console.log(data); // test etmek için
-
-        if (data.status === "success") {
-            const img = document.getElementById("previewImage");
-            img.src = data.imageUrl;
-            img.style.display = "block";
-        } else {
-            alert(data.message || "Upload failed.");
-        }
-    })
-    .catch(error => {
-        console.error("Error during upload:", error);
     });
 });
-
-
 </script>
 
 <footer class="site-footer">
     <p>&copy; 2025 Event Management | Designed by Emir Aydın and Poyraz Koca</p>
-  </footer>
-  
+</footer>
+
 </body>
 </html>
