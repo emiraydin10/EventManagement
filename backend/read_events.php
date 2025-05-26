@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 
 // Veritabanı bağlantısı
-$conn = new mysqli("localhost", "root", "", "event_management");
+$conn = new mysqli("localhost", "root", "Eventmanagement", "event_management");
 
 if ($conn->connect_error) {
     echo json_encode(["error" => "Database connection failed"]);
